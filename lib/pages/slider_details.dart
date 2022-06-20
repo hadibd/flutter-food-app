@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:food_app/dimesion.dart';
+import 'package:food_app/widgets/topbar_icon.dart';
 
 import '../const.dart';
 
@@ -36,186 +37,9 @@ class _SliderDetailsState extends State<SliderDetails> {
     return Scaffold(
       body: SafeArea(
         child: Stack(children: [
-          Positioned(
-            left: 0,
-            right: 0,
-            top: 0,
-            child: Container(
-              height: 250,
-              decoration: const BoxDecoration(
-                  image: DecorationImage(
-                      fit: BoxFit.cover,
-                      image: NetworkImage(
-                          'https://images.pexels.com/photos/2983101/pexels-photo-2983101.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'))),
-            ),
-          ),
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              width: double.infinity,
-              // color: Colors.amber,
-              margin: const EdgeInsets.all(16),
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: const Icon(Icons.abc),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: const Icon(Icons.baby_changing_station),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              top: 200,
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  color: Colors.white,
-                ),
-                height: 100,
-                margin: const EdgeInsets.only(left: 0, right: 0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Chinese Side',
-                      style: TextStyle(
-                          fontSize: Const.headerFontSize,
-                          fontWeight: FontWeight.w500),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 16.0),
-                      child: Row(
-                        children: [
-                          Wrap(
-                            children: List.generate(
-                              5,
-                              (index) => const Text(
-                                '⭐',
-                                style: Const.subHeadingStyle,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 5,
-                          ),
-                          const Text(
-                            '4.5',
-                            style: Const.subHeadingStyle,
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          const Text(
-                            '128 comments',
-                            style: Const.subHeadingStyle,
-                          )
-                        ],
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                            child: Row(
-                          children: const [
-                            Icon(
-                              Icons.circle,
-                              color: Colors.grey,
-                              size: 16,
-                            ),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            Text(
-                              'Normal',
-                              style: Const.subHeadingStyle,
-                            ),
-                          ],
-                        )),
-                        Container(
-                            child: Row(
-                          children: const [
-                            Icon(
-                              Icons.location_on,
-                              color: Colors.grey,
-                              size: 16,
-                            ),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            Text('14km', style: Const.subHeadingStyle),
-                          ],
-                        )),
-                        Container(
-                            child: Row(
-                          children: const [
-                            Icon(
-                              Icons.timer_outlined,
-                              color: Colors.grey,
-                              size: 16,
-                            ),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            Text(
-                              '12min',
-                              style: Const.subHeadingStyle,
-                            ),
-                          ],
-                        )),
-                      ],
-                    ),
-                    Container(
-                      margin: const EdgeInsets.only(top: 10, bottom: 12),
-                      child: Text(':${Dimesion.height}'),
-                    ),
-                    Expanded(
-                        child: ListView(
-                      children: [
-                        Text(isTextExpand ? description : firstHalf),
-                        Row(
-                          children: [
-                            TextButton(
-                              onPressed: () {
-                                setState(() {
-                                  isTextExpand = !isTextExpand;
-                                });
-                              },
-                              child: Text(
-                                  isTextExpand ? 'show less' : 'show more'),
-                            ),
-                            Icon(isTextExpand
-                                ? Icons.arrow_drop_up
-                                : Icons.arrow_drop_down)
-                          ],
-                        )
-                      ],
-                    ))
-                  ],
-                ),
-              ))
+          _buildCoverImage(),
+          _buildTopBar(),
+          _buildBodyContent()
         ]),
       ),
       bottomNavigationBar: Container(
@@ -232,33 +56,34 @@ class _SliderDetailsState extends State<SliderDetails> {
             Expanded(
               flex: 1,
               child: Container(
-                  // padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(15)),
-                  child: Row(
-                    children: [
-                      TextButton(
-                        onPressed: () {
-                          setState(() {
-                            if (quantity > 1) {
-                              quantity--;
-                            }
-                          });
-                        },
-                        child: const Text('-'),
-                      ),
-                      Text('$quantity'),
-                      TextButton(
-                        onPressed: () {
-                          setState(() {
-                            quantity++;
-                          });
-                        },
-                        child: const Text('+'),
-                      )
-                    ],
-                  )),
+                // padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(15)),
+                child: Row(
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          if (quantity > 1) {
+                            quantity--;
+                          }
+                        });
+                      },
+                      child: const Text('-'),
+                    ),
+                    Text('$quantity'),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          quantity++;
+                        });
+                      },
+                      child: const Text('+'),
+                    )
+                  ],
+                ),
+              ),
             ),
             const SizedBox(
               width: 24,
@@ -275,6 +100,180 @@ class _SliderDetailsState extends State<SliderDetails> {
                 ))
           ],
         ),
+      ),
+    );
+  }
+
+  Positioned _buildBodyContent() {
+    return Positioned(
+        left: 0,
+        right: 0,
+        bottom: 0,
+        top: 200,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            color: Colors.white,
+          ),
+          height: 100,
+          margin: const EdgeInsets.only(left: 0, right: 0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Chinese Side',
+                style: TextStyle(
+                    fontSize: Const.headerFontSize,
+                    fontWeight: FontWeight.w500),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: Row(
+                  children: [
+                    Wrap(
+                      children: List.generate(
+                        5,
+                        (index) => const Text(
+                          '⭐',
+                          style: Const.subHeadingStyle,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    const Text(
+                      '4.5',
+                      style: Const.subHeadingStyle,
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    const Text(
+                      '128 comments',
+                      style: Const.subHeadingStyle,
+                    )
+                  ],
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: const [
+                      Icon(
+                        Icons.circle,
+                        color: Colors.grey,
+                        size: 16,
+                      ),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Text(
+                        'Normal',
+                        style: Const.subHeadingStyle,
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: const [
+                      Icon(
+                        Icons.location_on,
+                        color: Colors.grey,
+                        size: 16,
+                      ),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Text('14km', style: Const.subHeadingStyle),
+                    ],
+                  ),
+                  Row(
+                    children: const [
+                      Icon(
+                        Icons.timer_outlined,
+                        color: Colors.grey,
+                        size: 16,
+                      ),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Text(
+                        '12min',
+                        style: Const.subHeadingStyle,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Container(
+                margin: const EdgeInsets.only(top: 10, bottom: 12),
+                child: const Text(
+                  'Descriptions',
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                ),
+              ),
+              Expanded(
+                  child: ListView(
+                children: [
+                  Text(isTextExpand ? description : firstHalf + '...'),
+                  Row(
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            isTextExpand = !isTextExpand;
+                          });
+                        },
+                        child: Text(isTextExpand ? 'show less' : 'show more'),
+                      ),
+                      Icon(isTextExpand
+                          ? Icons.arrow_drop_up
+                          : Icons.arrow_drop_down)
+                    ],
+                  )
+                ],
+              ))
+            ],
+          ),
+        ));
+  }
+
+  Positioned _buildTopBar() {
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      child: Container(
+        width: double.infinity,
+        // color: Colors.amber,
+        margin: const EdgeInsets.all(16),
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            TopBarIcon(
+                myIcon: Icons.arrow_back,
+                onClick: () => Navigator.pop(context)),
+            TopBarIcon(myIcon: Icons.shopping_cart, onClick: () {}),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Positioned _buildCoverImage() {
+    return Positioned(
+      left: 0,
+      right: 0,
+      top: 0,
+      child: Container(
+        height: 250,
+        decoration: BoxDecoration(
+            image: DecorationImage(
+                fit: BoxFit.cover, image: NetworkImage(dummyImage))),
       ),
     );
   }
