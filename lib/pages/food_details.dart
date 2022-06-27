@@ -1,159 +1,280 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:food_app/const.dart';
+import 'package:food_app/widgets/colors.dart';
 
+import '../network/network_helper.dart';
+import '../utils/functions.dart';
 import '../widgets/topbar_icon.dart';
 
 class FoodDetails extends StatefulWidget {
-  const FoodDetails({Key? key}) : super(key: key);
+  const FoodDetails(
+      {Key? key,
+      required this.name,
+      required this.price,
+      required this.description,
+      required this.id,
+      required this.image})
+      : super(key: key);
+
+  final name, price, description, id, image;
 
   @override
   State<FoodDetails> createState() => _FoodDetailsState();
 }
 
 class _FoodDetailsState extends State<FoodDetails> {
-  bool isExpanded = false;
+  int quantity = 1;
+  var description;
+
   late var firstHalf;
+  var desButtonText = 'show more';
+  bool isTextExpand = false;
 
   @override
   void initState() {
-    // TODO: implement initState
+    description = widget.description;
     super.initState();
-
-    if (dummyText5p.length < 200) {
-      firstHalf = dummyText5p;
+    if (description.length < 200) {
+      firstHalf = description;
+      // secondHalf = '';
     } else {
-      firstHalf = dummyText5p.substring(0, 300);
+      firstHalf = description.substring(0, 200);
+      // secondHalf = description.substring(200, )
     }
+    print(widget.id);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            // floating: true,
-            toolbarHeight: 60,
-            backgroundColor: Colors.grey,
-            expandedHeight: 250,
-            elevation: 0,
-            // leading: const Icon(Icons.arrow_back),
-            automaticallyImplyLeading: false,
-            pinned: true,
-            title: Container(
-              width: double.infinity,
-              // color: Colors.amber,
-              margin: const EdgeInsets.all(16),
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TopBarIcon(
-                    myIcon: Icons.arrow_back,
-                    onClick: () => Navigator.pop(context),
-                  ),
-                  TopBarIcon(myIcon: Icons.shopping_cart, onClick: () {}),
-                ],
-              ),
-            ),
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(50),
+      body: SafeArea(
+        child: Stack(children: [
+          _buildCoverImage(),
+          _buildTopBar(),
+          _buildBodyContent()
+        ]),
+      ),
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: const BoxDecoration(
+          color: Color(0xff51E1ED),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
+          ),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              flex: 1,
               child: Container(
-                padding: const EdgeInsets.all(16),
-                width: double.maxFinite,
-                decoration: const BoxDecoration(
+                // padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(16),
-                      topRight: Radius.circular(16),
-                    )),
+                    borderRadius: BorderRadius.circular(15)),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Hello Foodie',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          if (quantity > 1) {
+                            quantity--;
+                          }
+                        });
+                      },
+                      child: const Text('-'),
                     ),
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                          color: Colors.grey,
-                          borderRadius: BorderRadius.circular(16)),
-                      child: const Icon(
-                        Icons.favorite,
-                        color: Colors.white,
-                      ),
+                    Text('$quantity'),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          quantity++;
+                        });
+                      },
+                      child: const Text('+'),
                     )
                   ],
                 ),
               ),
             ),
-
-            flexibleSpace: FlexibleSpaceBar(
-              background: Image.network(
-                dummyImage,
-                fit: BoxFit.cover,
-              ),
+            const SizedBox(
+              width: 24,
             ),
-          ),
-          SliverToBoxAdapter(
-            child: Container(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    Text(
-                      isExpanded ? dummyText5p : firstHalf + '...',
-                      textAlign: TextAlign.justify,
-                    ),
-                    TextButton.icon(
-                      onPressed: () {
-                        setState(() {
-                          isExpanded = !isExpanded;
-                        });
-                      },
-                      icon: Text(isExpanded ? 'Show less' : 'Show more'),
-                      label: Icon(isExpanded
-                          ? Icons.arrow_drop_up
-                          : Icons.arrow_drop_down),
-                    )
-                  ],
-                )),
-          )
-        ],
+            Expanded(
+                flex: 1,
+                child: MaterialButton(
+                  shape: const StadiumBorder(),
+                  // height: double.infinity,
+                  color: AppColor.buttonColorDark,
+                  onPressed: () {
+                    Network().addToCart('email', widget.id, quantity);
+                    Functions.showSnackbar(context, 'Added to cart');
+                  },
+                  child: const Text('Add to cart',
+                      style: TextStyle(color: Colors.white)),
+                ))
+          ],
+        ),
       ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(16),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+    );
+  }
+
+  Positioned _buildBodyContent() {
+    return Positioned(
+        left: 0,
+        right: 0,
+        bottom: 0,
+        top: 200,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            color: Colors.white,
+          ),
+          height: 100,
+          margin: const EdgeInsets.only(left: 0, right: 0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              MaterialButton(
-                shape: const StadiumBorder(),
-                onPressed: () {},
-                child: const Icon(Icons.remove_circle),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    widget.name,
+                    style: const TextStyle(
+                        fontSize: Const.headerFontSize,
+                        fontWeight: FontWeight.w500),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      Network().addToFavorite(widget.id);
+                      Functions.showSnackbar(context, 'Added to Favorite list');
+                    },
+                    child: const Icon(
+                      Icons.favorite_border,
+                      color: Colors.red,
+                    ),
+                  )
+                ],
               ),
-              Text('\$12.5 x 0)'),
-              MaterialButton(
-                shape: const StadiumBorder(),
-                onPressed: () {},
-                child: const Icon(Icons.add_circle),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Row(
+                  children: [
+                    const FaIcon(
+                      FontAwesomeIcons.dollarSign,
+                      color: Colors.grey,
+                      size: 16,
+                    ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Text(
+                      widget.price + '.00',
+                      style: const TextStyle(
+                        color: Colors.grey,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              Row(
+                children: [
+                  Wrap(
+                    children: List.generate(
+                      5,
+                      (index) => const Text(
+                        '⭐',
+                        style: Const.subHeadingStyle,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 5,
+                  ),
+                  const Text(
+                    '4.5',
+                    style: Const.subHeadingStyle,
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  const Text(
+                    '128 comments',
+                    style: Const.subHeadingStyle,
+                  )
+                ],
+              ),
+              Container(
+                margin: const EdgeInsets.only(top: 10, bottom: 12),
+                child: const Text(
+                  'Descriptions',
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                ),
+              ),
+              Expanded(
+                  child: ListView(
+                children: [
+                  Text(isTextExpand ? description : firstHalf + '...'),
+                  Row(
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            isTextExpand = !isTextExpand;
+                          });
+                        },
+                        child: Text(isTextExpand ? 'show less' : 'show more'),
+                      ),
+                      Icon(isTextExpand
+                          ? Icons.arrow_drop_up
+                          : Icons.arrow_drop_down)
+                    ],
+                  )
+                ],
+              ))
             ],
           ),
-          MaterialButton(
-            height: 50,
-            minWidth: double.infinity,
-            color: Colors.grey,
-            shape: const StadiumBorder(),
-            onPressed: () {},
-            child: Text(
-              '\$28 | Add to cart',
-              style: TextStyle(color: Colors.white),
-            ),
-          )
-        ]),
+        ));
+  }
+
+  Positioned _buildTopBar() {
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      child: Container(
+        width: double.infinity,
+        // color: Colors.amber,
+        margin: const EdgeInsets.all(16),
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            TopBarIcon(
+                myIcon: Icons.arrow_back,
+                onClick: () => Navigator.pop(context)),
+            TopBarIcon(myIcon: Icons.shopping_cart, onClick: () {}),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Positioned _buildCoverImage() {
+    return Positioned(
+      left: 0,
+      right: 0,
+      top: 0,
+      child: Container(
+        height: 250,
+        decoration: BoxDecoration(
+            image: DecorationImage(
+                fit: BoxFit.cover, image: NetworkImage(widget.image))),
       ),
     );
   }
